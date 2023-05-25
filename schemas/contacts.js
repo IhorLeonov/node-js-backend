@@ -9,6 +9,7 @@ const addSchema = Joi.object({
             'string.pattern.base': `Incorrect phone number.`,
         })
         .required(),
+    favorite: Joi.boolean(),
 });
 
 module.exports = {
