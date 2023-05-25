@@ -1,6 +1,7 @@
 const express = require('express');
 const logger = require('morgan');
 const cors = require('cors');
+require('dotenv').config(); // отправляем локально данные в process.env с помощью пакета dotenv
 
 const contactsRouter = require('./routes/api/contacts');
 
