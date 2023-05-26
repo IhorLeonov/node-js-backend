@@ -2,6 +2,8 @@
 const Contact = require('../models/contact.js');
 
 // const { HttpError } = require('../helpers');
+// const error404 = new HttpError(404, "Not found");
+
 const { ctrlWrapper } = require('../decorators');
 
 const listContacts = async (_, res) => {

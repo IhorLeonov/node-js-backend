@@ -12,4 +12,11 @@ const HttpError = (status, message = messages[status]) => {
     return error;
 };
 
+// class HttpError extends Error {
+//     constructor(status, message = errorMessages[status]) {
+//       super(message);
+//       this.status = status;
+//     }
+//   }
+
 module.exports = HttpError;
