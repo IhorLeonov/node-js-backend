@@ -1,8 +1,8 @@
 const express = require('express');
 const ctrl = require('../../controllers/contacts');
 
-// const { isValidId } = require('../../middlewares');
 const { validateBody } = require('../../middlewares');
+// const { isValidId } = require('../../middlewares');
 
 const { schemas } = require('../../models/contact');
 
