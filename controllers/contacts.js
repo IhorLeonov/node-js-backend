@@ -1,58 +1,59 @@
-const contacts = require('../models/contacts.js');
-
-const { HttpError } = require('../helpers');
 const { ctrlWrapper } = require('../decorators');
+const { HttpError } = require('../helpers');
+const { Contact } = require('../models/contact.js');
 
-const listContacts = async (req, res, next) => {
-    const result = await contacts.listContacts();
+const customError = new HttpError(404, 'Not found');
+
+const listContacts = async (_, res) => {
+    // const result = await Contact.find({ name: "Kennedy Lane", phone: "(992) 914-3792" }); // вернет все поля с такими значениями
+    const result = await Contact.find({}, '-createdAt -updatedAt');
     res.json(result);
 };
 
-const getContactById = async (req, res, next) => {
+const getContactById = async (req, res) => {
     const { contactId } = req.params;
-    const result = await contacts.getContactById(contactId);
+    // const result = await Contact.findOne({ _id: contactId }); // можно искать по разным полям
+    const result = await Contact.findById(contactId);
+
     if (!result) {
-        throw HttpError(404, 'Not Found');
-        // const error = new Error('Not found');
-        // error.status = 404;
-        // throw error;
-        // return res.status(404).json({ message: 'Not found' });
+        throw customError;
     }
     res.json(result);
 };
 
-const addContact = async (req, res, next) => {
-    // const { error } = addSchema.validate(req.body);
-    // if (error) {
-    //     const field = error.details[0].path[0];
-    //     // throw HttpError(400, error.message);
-    //     throw HttpError(400, `missing required '${field}'`);
-    // }
-    const result = await contacts.addContact(req.body);
+const addContact = async (req, res) => {
+    const result = await Contact.create(req.body);
     res.status(201).json(result);
 };
 
-const updateContact = async (req, res, next) => {
-    // const { error } = addSchema.validate(req.body);
-    // if (error) {
-    //     // throw HttpError(400, error.message);
-    //     throw HttpError(400, 'missing fields');
-    // }
+const updateContact = async (req, res) => {
     const { contactId } = req.params;
-    const result = await contacts.updateContact(contactId, req.body);
+    const result = await Contact.findByIdAndUpdate(contactId, req.body, {
+        new: true,
+    }); // new: true - для того, чтобы возвращался новый объект
     if (!result) {
-        throw HttpError(404, 'Not found');
+        throw customError;
     }
     res.json(result);
 };
 
-const removeContact = async (req, res, next) => {
+const updateStatusContact = async (req, res) => {
     const { contactId } = req.params;
-    const result = await contacts.removeContact(contactId);
+    const result = await Contact.findByIdAndUpdate(contactId, req.body, {
+        new: true,
+    });
     if (!result) {
-        throw HttpError(404, 'Not found');
+        throw customError;
     }
-    // res.status(204).send();
+    res.json(result);
+};
+
+const removeContact = async (req, res) => {
+    const { contactId } = req.params;
+    const result = await Contact.findByIdAndRemove(contactId);
+    if (!result) {
+        throw customError;
+    }
     res.json({
         message: 'contact deleted',
     });
@@ -61,7 +62,8 @@ const removeContact = async (req, res, next) => {
 module.exports = {
     getAll: ctrlWrapper(listContacts),
     getById: ctrlWrapper(getContactById),
-    add: ctrlWrapper(addContact),
+    addContact: ctrlWrapper(addContact),
     updateById: ctrlWrapper(updateContact),
+    updateFavorite: ctrlWrapper(updateStatusContact),
     deleteById: ctrlWrapper(removeContact),
 };
