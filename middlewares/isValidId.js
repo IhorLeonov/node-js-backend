@@ -11,4 +11,4 @@ const isValidId = (req, res, next) => {
     next();
 };
 
-module.export = isValidId;
+module.exports = isValidId;
