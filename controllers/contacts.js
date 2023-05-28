@@ -2,8 +2,6 @@ const { ctrlWrapper } = require('../decorators');
 const { HttpError } = require('../helpers');
 const { Contact } = require('../models/contact.js');
 
-const customError = new HttpError(404, 'Not found');
-
 const listContacts = async (_, res) => {
     // const result = await Contact.find({ name: "Kennedy Lane", phone: "(992) 914-3792" }); // вернет все поля с такими значениями
     const result = await Contact.find({}, '-createdAt -updatedAt');
@@ -16,7 +14,7 @@ const getContactById = async (req, res) => {
     const result = await Contact.findById(contactId);
 
     if (!result) {
-        throw customError;
+        throw new HttpError(404, 'Not found');
     }
     res.json(result);
 };
@@ -32,7 +30,7 @@ const updateContact = async (req, res) => {
         new: true,
     }); // new: true - для того, чтобы возвращался новый объект
     if (!result) {
-        throw customError;
+        throw new HttpError(404, 'Not found');
     }
     res.json(result);
 };
@@ -43,7 +41,7 @@ const updateStatusContact = async (req, res) => {
         new: true,
     });
     if (!result) {
-        throw customError;
+        throw new HttpError(404, 'Not found');
     }
     res.json(result);
 };
@@ -52,7 +50,7 @@ const removeContact = async (req, res) => {
     const { contactId } = req.params;
     const result = await Contact.findByIdAndRemove(contactId);
     if (!result) {
-        throw customError;
+        throw new HttpError(404, 'Not found');
     }
     res.json({
         message: 'contact deleted',
