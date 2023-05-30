@@ -1,8 +1,8 @@
 const { Schema, model } = require('mongoose');
 const { handleMongooseError } = require('../helpers');
-const Joi = require('joi');
 
 const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; // eslint-disable-line
+const subscriptionList = ['starter', 'pro', 'business'];
 
 const userSchema = new Schema(
     {
@@ -14,12 +14,21 @@ const userSchema = new Schema(
             type: String,
             match: emailRegexp,
             unique: true,
-            required: true,
+            required: [true, 'Email is required'],
         },
         password: {
             type: String,
             minlength: 6,
-            required: true,
+            required: [true, 'Password is required'],
+        },
+        subscription: {
+            type: String,
+            enum: subscriptionList,
+            default: 'starter',
+        },
+        token: {
+            type: String,
+            default: '',
         },
     },
     { versionKey: false, timestamps: true }
@@ -27,25 +36,8 @@ const userSchema = new Schema(
 
 userSchema.post('save', handleMongooseError);
 
-const registerSchema = Joi.object({
-    name: Joi.string().required(),
-    email: Joi.string().pattern(emailRegexp).required(),
-    password: Joi.string().min(6).required(),
-});
-
-const loginSchema = Joi.object({
-    email: Joi.string().pattern(emailRegexp).required(),
-    password: Joi.string().min(6).required(),
-});
-
-const schemas = {
-    registerSchema,
-    loginSchema,
-};
-
 const User = model('user', userSchema);
 
 module.exports = {
-    schemas,
     User,
 };

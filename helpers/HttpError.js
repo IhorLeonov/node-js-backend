@@ -1,20 +1,14 @@
-const messages = {
+const errorMessageList = {
     400: 'Bad Request',
-    401: 'Unauthorized',
+    401: 'Not authorized',
     403: 'Forbidden',
     404: 'Not Found',
     409: 'Conflict',
 };
 
-// const HttpError = (status, message = messages[status]) => {
-//     const error = new Error(message);
-//     error.status = status;
-//     return error;
-// };
-
 class HttpError extends Error {
-    constructor(status, message = messages[status]) {
-        super(message);
+    constructor(status, message) {
+        super(message || errorMessageList[status]);
         this.status = status;
     }
 }
