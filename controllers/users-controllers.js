@@ -1,14 +1,21 @@
 const { User } = require('../models/user');
 const { ctrlWrapper } = require('../decorators');
 const { HttpError } = require('../helpers');
+const { SECRET_KEY } = process.env;
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const fs = require('fs/promises');
+const path = require('path');
+const gravatar = require('gravatar');
+const Jimp = require('jimp');
 
-const { SECRET_KEY } = process.env;
+const avatarsPath = path.resolve('public', 'avatars');
 
 const register = async (req, res) => {
     const { email, password } = req.body;
+
+    const ava = gravatar.url(email, { size: '250' });
     const user = await User.findOne({ email });
 
     if (user) {
@@ -17,7 +24,11 @@ const register = async (req, res) => {
 
     const hashPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await User.create({ ...req.body, password: hashPassword });
+    const newUser = await User.create({
+        ...req.body,
+        avatarURL: ava,
+        password: hashPassword,
+    });
 
     res.status(201).json({
         user: {
@@ -52,7 +63,6 @@ const login = async (req, res) => {
     res.json({
         token,
         user: {
-            name: user.name,
             email: user.email,
             subscription: user.subscription,
         },
@@ -93,10 +103,41 @@ const updateSubscription = async (req, res) => {
     });
 };
 
+const updateAvatar = async (req, res) => {
+    const { _id } = req.user;
+    const { path: oldPath, filename } = req.file;
+
+    const newPath = path.join(avatarsPath, filename);
+    await fs.rename(oldPath, newPath);
+    const avatarUrl = path.join('public', 'avatars', filename);
+
+    const normalizedAvatar = Jimp.read(avatarUrl)
+        .then(img => {
+            return img.resize(250, 250).write(avatarUrl);
+        })
+        .catch(error => {
+            throw new HttpError(404, `${error.message}`);
+        });
+
+    const result = await User.findByIdAndUpdate(_id, normalizedAvatar, {
+        new: true,
+    });
+
+    if (!result) {
+        throw new HttpError(404, 'Not found');
+    }
+
+    res.json({
+        user: result.email,
+        avatarURL: avatarUrl,
+    });
+};
+
 module.exports = {
     register: ctrlWrapper(register),
     login: ctrlWrapper(login),
     getCurrent: ctrlWrapper(getCurrent),
     logout: ctrlWrapper(logout),
     updateSubscription: ctrlWrapper(updateSubscription),
+    updateAvatar: ctrlWrapper(updateAvatar),
 };

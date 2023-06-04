@@ -1,7 +1,12 @@
 const express = require('express');
 const ctrl = require('../../controllers/contacts-controllers');
 
-const { validateBody, isValidId, authenticate } = require('../../middlewares');
+const {
+    validateBody,
+    isValidId,
+    authenticate,
+    // upload,
+} = require('../../middlewares');
 
 const { schemas } = require('../../schemas/contacts-schema');
 
@@ -13,6 +18,7 @@ router.get('/:contactId', authenticate, isValidId, ctrl.getById);
 
 router.post(
     '/',
+    // upload.single('avatar'),
     authenticate,
     validateBody(schemas.addSchema),
     ctrl.addContact
