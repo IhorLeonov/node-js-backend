@@ -7,7 +7,7 @@ const Jimp = require('jimp');
 
 const { User } = require('../models/user');
 const { HttpError, ctrlWrapper, sendEmail } = require('../helpers');
-const { SECRET_KEY, BASE_URL } = process.env;
+const { SECRET_KEY, PROJECT_URL } = process.env;
 const { nanoid } = require('nanoid');
 
 const avatarsPath = path.resolve('public', 'avatars');
@@ -34,7 +34,7 @@ const register = async (req, res) => {
     const verifyEmail = {
         to: email,
         subject: 'Verify email',
-        html: `<a target="_blank" href="${BASE_URL}/api/users/verify/${verificationToken}">Click to verify email</a>`,
+        html: `<a target="_blank" href="${PROJECT_URL}/api/users/verify/${verificationToken}">Click to verify email</a>`,
     };
 
     await sendEmail(verifyEmail);
@@ -80,7 +80,7 @@ const resendVerifyEmail = async (req, res) => {
     const verifyEmail = {
         to: email,
         subject: 'Verify email',
-        html: `<a target="_blank" href="${BASE_URL}/api/users/verify/${user.verificationToken}">Click to verify email</a>`,
+        html: `<a target="_blank" href="${PROJECT_URL}/api/users/verify/${user.verificationToken}">Click to verify email</a>`,
     };
     await sendEmail(verifyEmail);
 
