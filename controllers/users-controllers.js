@@ -1,7 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const fs = require('fs/promises');
-// const path = require('path');
 const gravatar = require('gravatar');
 const Jimp = require('jimp');
 
@@ -9,8 +8,6 @@ const { User } = require('../models/user');
 const { HttpError, ctrlWrapper, sendEmail, cloudinary } = require('../helpers');
 const { SECRET_KEY, PROJECT_URL } = process.env;
 const { nanoid } = require('nanoid');
-
-// const avatarsPath = path.resolve('public', 'avatars');
 
 const register = async (req, res) => {
     const { email, password } = req.body;
@@ -159,12 +156,8 @@ const updateSubscription = async (req, res) => {
 
 const updateAvatar = async (req, res) => {
     const { _id } = req.user;
-    // const { path: oldPath, filename } = req.file;
     const { path: oldPath } = req.file;
 
-    // const newPath = path.join(avatarsPath, filename);
-    // await fs.rename(oldPath, newPath);
-    // const avatarUrl = path.join('public', 'avatars', filename);
     const fileData = await cloudinary.uploader.upload(oldPath, {
         folder: 'contacts-avatars',
     });
